@@ -1,0 +1,6 @@
+#wrapper {position: fixed; height: 100%; width: 100%; overflow: auto;}
+
+/*.wall { position: absolute; background: grey; height: 10px; width: 10px; z-index: 100;}*/
+.open { position: absolute; background: green; height: 10px; width: 10px;}
+.wallx { position: absolute; background: grey; height: 2px; width: 10px; z-index: 100;}
+.wally { position: absolute; background: grey; height: 10px; width: 2px; z-index: 100;}
