@@ -1,4 +1,5 @@
 
+body {}
 #wrapper {position: fixed; height: 100%; width: 100%; overflow: auto;}
 .basic_block { position: absolute; background: green; }
 .xwall { position: absolute; background: grey; z-index: 100; }

@@ -1,7 +1,10 @@
 let STATE = {}
-fetch('assets/maze1s.svg')
-  .then(response => response.text())
-  .then(data => parseMazeSvg(data));
+
+let wrapper = document.getElementById("wrapper")
+document.addEventListener("keyup", handleKeyUp)
+fetch('assets/maze1s.svg').then(response => response.text()).then(data => parseMazeSvg(data));
+
+
 let out
 function parseMazeSvg(data){
     out = {
@@ -116,13 +119,36 @@ STATE.player = {
 
 }
 
+function handleKeyUp(event){
+    console.log("keyup", event.keyCode);
+    if (event.keyCode == 37){ // left
+         moveToBlock(`blk_${STATE.player.x - 1}_${STATE.player.y}`)
+    }
+    if (event.keyCode == 38){ //up
+         moveToBlock(`blk_${STATE.player.x}_${STATE.player.y - 1}`)
+    }
+    if (event.keyCode == 39){ //right
+         moveToBlock(`blk_${STATE.player.x + 1}_${STATE.player.y}`)
+    }
+    if (event.keyCode == 40){ //down
+         moveToBlock(`blk_${STATE.player.x}_${STATE.player.y + 1}`)
+    }
+}
+
 function moveToBlock(event){
+    console.log("moveToBlock");
+    let parts
+    if (typeof(event) === "string"){
+        parts = event.split("_")
+    } else {
+        parts = event.target.id.split("_")
+    }
     let maze = out.maze
     let p = STATE.player
     let pdiv = document.getElementById("player")
     let x,y
     let move = {x:null,y:null, xmove:null, ymove:null, ok:true}
-    let parts = event.target.id.split("_")
+
     if( parts.length == 3 ) {
         move.x = parseInt(parts[1])
         move.y= parseInt(parts[2])
@@ -132,6 +158,7 @@ function moveToBlock(event){
         if (calcx > 1) { move.ok = false}
         if (calcy > 1) { move.ok = false}
         if (calcx > 0 && calcy > 0) {move.ok = false}
+        if (move.x < 0 || move.y < 0) {move.ok = false}
         // check which direction were trying to move
         if (move.x !== p.x ) {
             console.log("moving x", move.x, p.x);
