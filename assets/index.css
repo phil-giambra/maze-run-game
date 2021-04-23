@@ -5,6 +5,7 @@ body {}
 .xwall { position: absolute; background: grey; z-index: 100; }
 .ywall { position: absolute; background: grey; z-index: 100;}
 .player_block { position: absolute; background: blue;z-index: 90; }
+.solution_marker {position: absolute; background: red; z-index: 80;}
 /*
 .wall { position: absolute; background: grey;z-index: 100;}
 .open { position: absolute; background: green; }

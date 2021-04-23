@@ -1,15 +1,21 @@
 let STATE = {}
-
+STATE.level_id = 0
+let LEVELS = []
 let wrapper = document.getElementById("wrapper")
 document.addEventListener("keyup", handleKeyUp)
-fetch('assets/maze1s.svg').then(response => response.text()).then(data => parseMazeSvg(data));
+
+function createLevel(path) {
+    fetch(path)
+    .then(response => response.text())
+    .then(data => parseMazeSvg(data));
+}
 
 
-let out
+
+
 function parseMazeSvg(data){
-    out = {
-        max_x:0,
-        max_y:0,
+    let lid = LEVELS.length
+    LEVELS.push({
         blksize:40,
         wallsize:8,
         segments:20,
@@ -20,7 +26,9 @@ function parseMazeSvg(data){
         start_pos:null,
         end_pos:null
 
-    }
+    })
+    STATE.level_id = lid
+    out = LEVELS[lid]
     let lines = data.split("\n")
     out.segments = (parseInt(lines[2].split(" ")[1].split('"')[1]) - 4) / 16
     console.log("segments :",out.segments );
@@ -66,21 +74,15 @@ function parseMazeSvg(data){
             }
             out.start_pos = out.solution[0]
             out.end_pos = out.solution[out.solution.length -1]
-            /*
-            out.start_pos = out.solution[0].split(",")
-            out.end_pos = out.solution[out.solution.length -1].split(",")
-            out.start_pos[0] = Math.floor(parseInt(out.start_pos[0]-2) / 16 )
-            out.start_pos[1] = Math.floor(parseInt(out.start_pos[1]-2) / 16 )
-            out.end_pos[0] = Math.floor(parseInt(out.end_pos[0]-2) / 16 )
-            out.end_pos[1] = Math.floor(parseInt(out.end_pos[1]-2) / 16 )
-            */
+
         }
     }
-    console.log(out);
-    buildMazeHtml(out)
+    console.log(LEVELS[lid]);
+    buildMazeHtml()
 }
 
-function buildMazeHtml(data) {
+function buildMazeHtml() {
+    let data = LEVELS[STATE.level_id]
     let maze = data.maze
     let mod = data.blksize
     let str = ""
@@ -111,6 +113,11 @@ function buildMazeHtml(data) {
     STATE.player.y = out.start_pos[1]
     str = `<div id="player" class="player_block" style="top:${(STATE.player.y )*mod}px;left:${(STATE.player.x )*mod}px;height:${mod}px;width:${mod}px;"></div>`
     document.getElementById("wrapper").insertAdjacentHTML("beforeend", str);
+    // add solution
+    for (let s = 0; s < out.solution.length; s++) {
+        blockAddMarker(out.solution[s][0],out.solution[s][1],{type:"solution",x:18,y:18,h:4,w:4})
+    }
+
 }
 
 STATE.player = {
@@ -135,6 +142,8 @@ function handleKeyUp(event){
     }
 }
 
+
+
 function moveToBlock(event){
     console.log("moveToBlock");
     let parts
@@ -143,7 +152,8 @@ function moveToBlock(event){
     } else {
         parts = event.target.id.split("_")
     }
-    let maze = out.maze
+    let maze = LEVELS[STATE.level_id].maze
+    let blksize =  LEVELS[STATE.level_id].blksize
     let p = STATE.player
     let pdiv = document.getElementById("player")
     let x,y
@@ -173,11 +183,11 @@ function moveToBlock(event){
 
         if ( move.xmove == "+" && maze[move.x][move.y].ywall === true) { move.ok = false}
         if ( move.xmove == "-" && maze[p.x][p.y].ywall === true) { move.ok = false}
-        console.log(out.maze[move.x][move.y], move);
+        console.log(maze[move.x][move.y], move);
         // move the player
         if (move.ok === true) {
-            pdiv.style.left = (move.x * out.blksize) + "px"
-            pdiv.style.top = (move.y * out.blksize) + "px"
+            pdiv.style.left = (move.x * blksize) + "px"
+            pdiv.style.top = (move.y * blksize) + "px"
             STATE.player.x = move.x
             STATE.player.y = move.y
             //if (move.x ==)
@@ -185,3 +195,22 @@ function moveToBlock(event){
 
     }
 }
+
+function blockAddMarker(x,y,info) {
+    let str = `<div id="${info.type}_${x}_${y}" class="${info.type}_marker" style="top:${info.y}px;left:${info.y}px;height:${info.h}px;width:${info.w}px;"></div>`
+    document.getElementById(`blk_${x}_${y}`).insertAdjacentHTML("beforeend", str);
+}
+
+function blockRemoveMarker(x,y,info) {
+
+    let child = document.getElementById(`${info.type}_${x}_${y}`)
+    console.log("child",child);
+    if (child) {
+        document.getElementById(`blk_${x}_${y}`).removeChild(child)
+    }
+
+}
+
+
+
+createLevel('assets/maze1s.svg')
